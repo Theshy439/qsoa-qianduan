@@ -14,7 +14,7 @@
     <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
     <script src="./lib/layui/layui.js" charset="utf-8"></script>
     <script type="text/javascript" src="./js/xadmin.js"></script>
-
+	<script type="text/javascript" src="/js/myapp.js"></script>
 </head>
 <body class="login-bg">
     
@@ -42,14 +42,26 @@
               //监听提交
               form.on('submit(login)', function(data){
                 // alert(888)
-                layer.msg(JSON.stringify(data.field),function(){
+                /* layer.msg(JSON.stringify(data.field),function(){
                     location.href='index.html'
-                });
+                }); */
+				myapp.myAjax({url:myapp.getApi("admin/login"),data:data.field,success:function(result){
+					if(result.status != 200){
+						layer.msg("服务器开小差了，请稍后再试");
+						return;
+					}
+					if(result.code == 201){
+						layer.msg("用户名或密码不正确，请重新登录");
+						return;
+					}
+					layer.msg("登录成功",function(){
+						myapp.openpage("index.html");
+					})
+				}});
                 return false;
               });
             });
         })
-
         
     </script>
 

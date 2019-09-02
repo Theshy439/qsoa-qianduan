@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>添加管理员</title>
+		<meta name="renderer" content="webkit|ie-comp|ie-stand">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+		<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="/css/font.css">
+		<link rel="stylesheet" href="/css/xadmin.css">
+		<link rel="stylesheet" href="/css/myapp.css" />
+		<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+		<script src="/lib/layui/layui.js" charset="utf-8"></script>
+		<script src="/js/myapp.js"></script>
+		<style>
+			.register{
+				    position: relative;
+				    top: 100px;
+				    width: 330px;
+				    left: 113px;
+			}
+			.register input{
+				margin-bottom: 20px;
+			}
+			.w100{
+				width: 100%;
+			}
+			.w73dib{
+				width: 66%;
+				display: inline-block;
+			}
+			
+		</style>
+	</head>
+	<body class="layui-anim layui-anim-up">
+		<div class="x-nav">
+		      <span class="layui-breadcrumb" style="visibility: visible;">
+		        <a href="">首页</a><span lay-separator="">/</span>
+		        <a href="">管理员</a><span lay-separator="">/</span>
+		        <a>
+		          <cite>添加管理员</cite></a>
+		      </span>
+		      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
+		        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
+		    </div>
+		<div class="register">
+			<input type="text" name="username" placeholder="请输入用户名" class="layui-input">
+			<p>
+			<span class="w73dib"><input type="text" name="phone" placeholder="请输入手机号码" class="layui-input"></span>
+			<span class="layui-btn layui-btn-normal layui-btn-mini" id="send-vc">发送验证码</span>
+			</p>
+			<span class="layui-btn layui-btn-normal layui-btn-mini w100" id="sumbit">提交</span>
+		</div>
+	</body>
+	<script>
+		$("#sumbit").click(function(){
+			var username = $("input[name='username']").val();
+			var phone = $("input[name='phone']").val();
+			if(username == ''){
+				alert("用户名为空");
+				return;
+			}
+			if(phone == ''){
+				alert("手机号码不能为空");
+				return;
+			}
+			$.ajax({
+				url: "/api/admin/register",
+				data: {
+					username: username,
+					phone: phone
+				},
+				dataType: "JSON",
+				type: "POST",
+				async: true,
+				success: function(result){
+					console.log(result);
+				},
+				error: function(){
+					
+				}
+			})
+		});
+		
+		myapp.sendVC("#send-vc",60,function(){
+			
+		});
+	</script>
+</html>
