@@ -16,77 +16,251 @@
 		<script src="/lib/layui/layui.js" charset="utf-8"></script>
 		<script src="/js/myapp.js"></script>
 		<style>
-			.register{
-				    position: relative;
-				    top: 100px;
-				    width: 330px;
-				    left: 113px;
+			.gdp{
+				position: relative;
+				top: 70px;
+				width: 68%;
+				left: 113px;	
 			}
-			.register input{
+			.register{
+			}
+			.gdp input{
 				margin-bottom: 20px;
 			}
 			.w100{
 				width: 100%;
 			}
 			.w73dib{
-				width: 66%;
+				width: 74%;
 				display: inline-block;
 			}
-			
+			.w25{
+				width: 25%;
+			}
+			.title{
+				margin-bottom: 20px;
+				font-size: 18px;
+			}
+			.title>h5{
+				display: inline-block;				
+			}
+			.huise{
+				color: rgba(150,150,150);
+			}
 		</style>
 	</head>
 	<body class="layui-anim layui-anim-up">
 		<div class="x-nav">
-		      <span class="layui-breadcrumb" style="visibility: visible;">
-		        <a href="">首页</a><span lay-separator="">/</span>
-		        <a href="">管理员</a><span lay-separator="">/</span>
-		        <a>
-		          <cite>添加管理员</cite></a>
-		      </span>
-		      <a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
-		        <i class="layui-icon" style="line-height:30px">ဂ</i></a>
-		    </div>
-		<div class="register">
-			<input type="text" name="username" placeholder="请输入用户名" class="layui-input">
-			<p>
-			<span class="w73dib"><input type="text" name="phone" placeholder="请输入手机号码" class="layui-input"></span>
-			<span class="layui-btn layui-btn-normal layui-btn-mini" id="send-vc">发送验证码</span>
-			</p>
-			<span class="layui-btn layui-btn-normal layui-btn-mini w100" id="sumbit">提交</span>
+			<span class="layui-breadcrumb" style="visibility: visible;">
+				<a href="">首页</a><span lay-separator="">/</span>
+				<a href="">管理员</a><span lay-separator="">/</span>
+				<a>
+					<cite>添加管理员</cite></a>
+			</span>
+			<a class="layui-btn layui-btn-small" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);"
+			 title="刷新">
+				<i class="layui-icon" style="line-height:30px">ဂ</i></a>
+		</div>
+		<div class="gdp">
+			<div class="title">
+				<h5>注册</h5>
+				<h5 class="huise"><i class="icon iconfont"></i>设置密码</h5>
+				<h5 class="huise"><i class="icon iconfont"></i>完成</h5>
+			</div>
+			<div class="register" id="register">
+				<input type="text" name="username" placeholder="请输入用户名" class="layui-input">
+				<p>
+					<span class="w73dib"><input type="text" name="phone" placeholder="请输入手机号码" class="layui-input"></span>
+					<span class="layui-btn layui-btn-normal layui-btn-mini w25" id="send-vc">发送验证码</span>
+				</p>
+				<input type="text" name="vc" placeholder="请输入验证码" class="layui-input">
+				<span class="layui-btn layui-btn-normal layui-btn-mini w100 submit">提交</span>
+			</div>
+			<div class="setPassword layui-hide" id="setPassword">
+				<input type="password" name="password1" placeholder="请输入密码" class="layui-input">
+				<input type="password" name="password2" placeholder="请确认密码" class="layui-input">
+				<span class="layui-btn layui-btn-normal layui-btn-mini w100 submit">提交</span>
+			</div>
+			<div class="success layui-hide" id="success">
+				<i class="layui-layer-ico layui-layer-ico1"></i>
+			</div>
 		</div>
 	</body>
 	<script>
-		$("#sumbit").click(function(){
-			var username = $("input[name='username']").val();
-			var phone = $("input[name='phone']").val();
-			if(username == ''){
-				alert("用户名为空");
-				return;
-			}
-			if(phone == ''){
-				alert("手机号码不能为空");
-				return;
-			}
-			$.ajax({
-				url: "/api/admin/register",
-				data: {
-					username: username,
-					phone: phone
-				},
-				dataType: "JSON",
-				type: "POST",
-				async: true,
-				success: function(result){
-					console.log(result);
-				},
-				error: function(){
-					
+		var id;
+		layui.use('layer', function() {
+			var $ = layui.jquery,
+				layer = layui.layer;
+			$("#register .submit").click(function() {
+				var username = $("input[name='username']").val();
+				var phone = $("input[name='phone']").val();
+				var yzm = $("input[name='vc']").val();
+				if (username == '') {
+					layer.msg("用户名为空");
+					return;
 				}
-			})
+				if (phone == '') {
+					layer.msg("手机号码不能为空");
+					return;
+				}
+				if (yzm == '') {
+					layer.msg("验证码不能为空");
+					return;
+				}
+				$.ajax({
+					url: "/api/admin/register",
+					data: {
+						username: username,
+						phone: phone,
+						yzm: "\"" + yzm + "\""
+					},
+					dataType: "JSON",
+					type: "POST",
+					async: true,
+					success: function(result) {
+						console.log(result);
+						if (result.status != 200) {
+							layer.msg("服务异常");
+							return;
+						}
+						if (result.code == 202) {
+							layer.msg(result.message);
+							return;
+						}
+						id = result.data.id;
+						layer.confirm('注册成功', {
+							title: "操作提示",
+							icon: 1,
+							btn: ['确定'], //可以无限个按钮
+							cancel: function(index) {
+								$("#register").addClass('layui-hide');
+								$("#setPassword").removeClass('layui-hide');
+								$(".gdp .title>h5:nth-child(2)").removeClass('huise');
+								layer.close(index);
+							}
+						}, function(index) {
+							$("#register").addClass('layui-hide');
+							$("#setPassword").removeClass('layui-hide');
+							$(".gdp .title>h5:nth-child(2)").removeClass('huise');
+							layer.close(index);
+						});
+					},
+					error: function() {
+						layer.msg("服务异常");
+					}
+				})
+			});
+			$("#send-vc").click(function() {
+				if ($(this).hasClass('disabled')) {
+					return;
+				}
+				var phone = $("input[name='phone']").val();
+				if (phone == '') {
+					layer.msg("手机号码不能为空");
+					return;
+				} else if (!myapp.checkPhone(phone)) {
+					layer.msg("请按正确的格式填写手机号码");
+					return;
+				}
+				myapp.myAjax({
+					url: myapp.getApi("/admin/getVC"),
+					data: {
+						phone: phone
+					},
+					success: function(result) {
+						if (result.status != 200) {
+							layer.msg("服务异常");
+							return;
+						}
+						layer.msg("发送验证码成功");
+						$("#send-vc").addClass('disabled');
+						myapp.sendVC("#send-vc", 60);
+					},
+					error: function() {
+						layer.msg("服务异常");
+					}
+				})
+			});
+			$("#setPassword .submit").click(function() {
+				//方式一
+				var data = {
+					password1: {
+						value: $("input[name='password1']").val(),
+						alert: "请输入密码"
+					},
+					password2: {
+						value: $("input[name='password2']").val(),
+						alert: "请确认密码"
+					}
+				}
+				for (var k in data) {
+					if (data[k].value == '') {
+						layer.msg(data[k].alert);
+						return;
+					} else {
+						data[k] = data[k].value;
+					}
+				}
+				//方式二
+				/* var data = ["input[name='password1']","input[name='password2']"];
+				for(var k in data){
+					var value = $(data[k]).val();
+					if(value == ''){
+						layer.msg($(data[k]).attr("placeholder"));
+						return;
+					}
+				} */
+				/* var input = $("#setPassword input");
+				for(var i = 0;i<input.length;i++){
+					var value = $(input[i]).val();
+					if(value == ''){
+						layer.msg($(input[i]).attr("placeholder"));
+						return;
+					}
+				} */
+				for (var k in data) {
+					if (data[k].length < 6 || data[k].length > 18) {
+						layer.msg("密码不符合规范");
+						return;
+					}
+				}
+				if (data['password1'] != data['password2']) {
+					layer.msg("两次输入的密码不一样");
+					return;
+				}
+				if (typeof id == 'undefined') {
+					layer.msg("服务器开小差了，请稍后再试");
+					return;
+				}
+				myapp.myAjax({
+					url: myapp.getApi('admin/setPassword'),
+					data: {
+						id: id,
+						password: data['password1']
+					},
+					success: function(result) {
+						if (result.status != 200) {
+							layer.msg("服务异常");
+							return;
+						}
+						if (result.code == 201) {
+							layer.msg(result.message);
+							return;
+						}
+						layer.confirm('密码设置成功', {
+							title: "操作提示",
+							icon: 1,
+							btn: ['确定'] //可以无限个按钮
+						}, function(index) {
+							$("#setPassword").addClass('layui-hide');
+							$("#success").removeClass('layui-hide');
+							$(".gdp .title>h5:nth-child(3)").removeClass('huise');
+							layer.close(index);
+						});
+					}
+				})
+			});
 		});
-		
-		myapp.sendVC("#send-vc",60,function(){
-			
-		});
+		test();
 	</script>
 </html>

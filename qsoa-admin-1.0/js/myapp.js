@@ -31,24 +31,55 @@ myapp.myAjax = function(options) {
 	$.ajax(my_options);
 }
 
-myapp.sendVC = function(id,time,callback){
-	$(id).click(function(){
-		if($(this).hasClass('disabled')){
-			return;
+//升级版Ajax方法
+myapp.myAjax1= function(options,success_callback){
+	layui.use('layer', function() {
+		var $ = layui.jquery,
+			layer = layui.layer;
+		
+		if(typeof options != 'undefined'){
+			if(typeof options['success'] != 'undefined'){
+				options['success'] = function(result){
+					if(result.status != 200){
+						if(result.code == 505){
+							layer.msg(result.message,function(){
+								myapp.openpage("login.html");
+							});
+							return;
+						}
+						layer.msg("服务器开小差了，请稍后再试");
+					}
+					if(success_callback){
+						success_callback(result);
+					}
+				}
+			}
+			options['error'] = function(error){
+				layer.msg("服务异常");
+			}
 		}
-		$(this).addClass('disabled');
-		if(callback){
-			callback();
-		}
-		$(this).text(time+"s后发送");
+		
+		myapp.myAjax(options);
+	});
+}
+
+myapp.sendVC = function(obj,time){
+		$(obj).text(time+"s后发送");
 		var timeour = setInterval(function(){
 			time --;
-			$(id).text(time+"s后发送");
+			$(obj).text(time+"s后发送");
 		},1000);
 		setTimeout(function(){
 			clearInterval(timeour);
-			$(id).text("发送验证码");
-			$(id).removeClass('disabled');
+			$(obj).text("发送验证码");
+			$(obj).removeClass('disabled');
 		},time*1000);
-	});
+}
+//校验手机号码格式是否正确
+myapp.checkPhone = function(phone) {
+	var zzbds = /^((\d{3}-\d{8}|\d{4}-\d{7,8})|(1[3|5|7|8][0-9]{9}))$/;
+	if (!zzbds.test(phone)) {
+		return false;
+	}
+	return true;
 }
